@@ -1,0 +1,19 @@
+{
+  "name": "color-tool",
+  "version": "0.0.1",
+  "description": "Color tool",
+  "main": "index.html",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erikkroes/color-tool.git"
+  },
+  "author": "Erik Kroes",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/erikkroes/color-tool/issues"
+  },
+  "homepage": "https://github.com/erikkroes/color-tool#readme"
+}
