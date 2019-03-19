@@ -65,7 +65,7 @@ class ColorTool extends LitElement {
           justify-content: flex-end;
           min-height: 120px;
           min-width: 140px;
-          margin-right: 8px;
+          margin-right: 8px;          
         }
 
         .swatch--selected {
@@ -73,7 +73,7 @@ class ColorTool extends LitElement {
         }
 
         .swatch--button {
-          
+          background-color: #fff;
         }
 
         .swatch__add-button {
@@ -83,7 +83,7 @@ class ColorTool extends LitElement {
           min-height: 120px;
           min-width: 140px;
           border: 1px solid transparent;
-          width; 100%;
+          width: 100%;
         }
 
         .swatch__add-button:focus {
@@ -92,16 +92,33 @@ class ColorTool extends LitElement {
         }
 
         .swatch__radio {
-          opacity: 1;
-          // width: 1px;
+          opacity: 0;
+          width: 1px;
+          height: 1px;
+          margin: 0;
+          padding: 0;
         }
 
         .swatch__label {
+          height: 100%;
+          margin-top: -1px;
           display: flex;
-          justify-content: space-between;
-          background-color: #fff;
+          align-items: flex-end;
         }
 
+        .swatch__label-box {
+          display: flex;
+          width: 100%;
+          justify-content: space-between;
+          border-top: 1px solid #bebebe;
+          background-color: #fff;
+          padding: 0 4px;
+        }
+
+        .swatch__title, .swatch__contrast {
+          margin: 8px 0;
+          font-size: 19px;
+        }
 
         .color {
           display: grid;
@@ -130,11 +147,10 @@ class ColorTool extends LitElement {
           background-color: #ffffff;
         }
 
-        .color__range {
-          display: flex;
-          justify-content: space-between;
-
-        }
+        .color__ranges { 
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+        }        
       `,
     ];
   }
@@ -152,11 +168,12 @@ class ColorTool extends LitElement {
           <fieldset class="swatches__fieldset">
             <div class="swatches__group">
               ${this.swatches.map((swatch, i) => this._swatchTemplate(swatch, i))}
-          </fieldset> 
               <div class="card swatch--button">
-                <button @click="${this._addSwatch}" class="swatch__add-button">+</button> 
-              </div>                           
+                <button @click="${this._addSwatch}" class="swatch__add-button">+</button>             
+              </div>
             </div>
+          </fieldset> 
+              
           <!-- </fieldset> -->
         <!-- </form>   -->
       </section>
@@ -167,24 +184,31 @@ class ColorTool extends LitElement {
         </div>
         <div class="card color__block">
           <h2>RGB/HEX</h2>
-          <div class="color__range">
+          <div class="color__ranges">
             <label>Red</label>
-            <input type="range" id="rgbRedRange" name="rgbRedRange" min="0" max="255" step="1" value="${Math.round(this.color.rgb.r)}" .val="${Math.round(this.color.rgb.r)}" @change="${this._updateRgbFromRange}">
+            <input type="range" id="rgbRedRange" name="rgbRedRange" min="0" max="255" step="1" .value="${Math.round(this.color.rgb.r)}" .val="${Math.round(this.color.rgb.r)}" @change="${this._updateRgbFromRange}">
             <input type="number" id="rgbRedNumber" name="rgbRedNumber" min="0" max="255" step="1" value="${Math.round(this.color.rgb.r)}" @change="${this._updateRgbFromNumber}">
-          </div>
-          <div class="color__range">
+
+            
             <label>Green</label>
-            <input type="range" id="rgbGreenRange" name="rgbGreenRange" min="0" max="255" step="1" value="${Math.round(this.color.rgb.g)}" @change="${this._updateRgbFromRange}">
+            <input type="range" id="rgbGreenRange" name="rgbGreenRange" min="0" max="255" step="1" .value="${Math.round(this.color.rgb.g)}" @change="${this._updateRgbFromRange}">
             <input type="number" id="rgbGreenNumber" name="rgbGreenNumber" min="0" max="255" step="1" value="${Math.round(this.color.rgb.g)}" @change="${this._updateRgbFromNumber}">
-          </div>
-          <div class="color__range">
+          
             <label>Blue</label>
-            <input type="range" id="rgbBlueRange" name="rgbBlueRange" min="0" max="255" step="1" value="${Math.round(this.color.rgb.b)}" @change="${this._updateRgbFromRange}">
+            <input type="range" id="rgbBlueRange" name="rgbBlueRange" min="0" max="255" step="1" .value="${Math.round(this.color.rgb.b)}" @change="${this._updateRgbFromRange}">
             <input type="number" id="rgbBlueNumber" name="rgbBlueNumber" min="0" max="255" step="1" value="${Math.round(this.color.rgb.b)}" @change="${this._updateRgbFromNumber}">
           </div>
         </div>
         <div class="card color__block">
-          <h2>RGB/HEX</h2>
+          <h2>Luminance</h2>
+          <div class="color__ranges">
+            <label>Lum</label>
+            <input type="range" id="lumRange" name="lumRange" min="0" max="1" step=".0001" .value="${this.color.lum}">
+            <input type="number" id="lumNumber" name="lumNumber" min="0" max="1" step=".0001" value="${this.color.lum}">
+            <label>Y</label>
+            <input type="range" id="yRange" name="yRange" min="0" max="1" step=".0001" .value="${this.color.xyz.y}">
+            <input type="number" id="yNumber" name="yNumber" min="0" max="1" step=".0001" value="${this.color.xyz.y}">
+          </div>
         </div>
         <div class="card color__block">
           <h2>RGB/HEX</h2>
@@ -207,11 +231,7 @@ class ColorTool extends LitElement {
       ...this.swatches,
       newSwatch,
     ];
-    
-    
-    // .push(newSwatch);
-    // this.requestUpdate();
-    // e.preventDefault();   <== add this for the form
+    this._setSwatch(this.swatches.length - 1);
   }
 
   _remSwatch(i) {
@@ -258,7 +278,8 @@ class ColorTool extends LitElement {
   }
 
   _updateSwatch(){
-    this.swatches[this.selectedSwatch] = { x: this.color.xyz.x,
+    this.swatches[this.selectedSwatch] = { 
+      x: this.color.xyz.x,
       y: this.color.xyz.y,
       z: this.color.xyz.z,
       hex: this.color.hex,
@@ -298,6 +319,11 @@ class ColorTool extends LitElement {
     return hex;
   }
 
+  _rgbFromHex(hex) {
+
+    return({r, g, b});
+  }
+
   _lumFromRgb(r, g, b) {
     const rSrgb = r / 255;
     const gSrgb = g / 255;
@@ -312,7 +338,7 @@ class ColorTool extends LitElement {
   }
 
   _contrastFromLum(lum1, lum2) {
-    const contrast = (lum1 > lum2 ? (lum1 + 0.05) / (lum2 + 0.05) : (lum2 + 0.05) / (lum1 + 0.05)).toFixed(1);;
+    const contrast = (lum1 > lum2 ? (lum1 + 0.05) / (lum2 + 0.05) : (lum2 + 0.05) / (lum1 + 0.05)).toFixed(1);
     return contrast;
   }
 
@@ -354,8 +380,10 @@ class ColorTool extends LitElement {
     return html`<div class="card swatch ${this.selectedSwatch} ${(this.selectedSwatch === i) ? 'swatch--selected' : ''}" style="background-color: ${swatch.hex}">
       <input type="radio" id="swatch-${i}" name="swatch" value="${i}" class="swatch__radio" @click="${() => this._setSwatch(i)}">
       <label for="swatch-${i}" class="swatch__label" >
-        <h3 class="swatch__title">${swatch.hex}</h3>
-        <h4 class="swatch__contrast">${swatch.contrast}:1</h4>    
+        <div class="swatch__label-box">
+          <h3 class="swatch__title">${swatch.hex}</h3>
+          <h4 class="swatch__contrast">${swatch.contrast}:1</h4>    
+        </div>
       </label>
     </div>`;
   }
