@@ -15,19 +15,20 @@ class ColorTool extends LitElement {
     super();
     this.title = 'color-tool';
     this.selectedSwatch = 0;
-    this.swatches = [
-      { x: 0.9505,
-      y: 1.0000,
-      z: 1.0888,
+    this.swatches = [{ 
+      r: 255,
+      g: 255,
+      b: 255,
       hex: '#ffffff',
       lum: 1,
-      contrast: 1.0}
-    ];
-    this.color = {
-      xyz : { x: 0.9505, y: 1.0000, z: 1.0888 },
+      contrast: 1.0,
+    }];
+    this.color = {      
       rgb : { r: 255, g: 255, b: 255},
+      hsl : { h : 0, s: 100, l: 100},
       hex: '#ffffff',
       lum: 1,
+      lumRatio: 21,
       value: "#ffffff"
     }
   }
@@ -57,6 +58,7 @@ class ColorTool extends LitElement {
           display: flex;
           justify-content: flex-start;    
           margin-bottom: 16px;   
+          max-width: 960px;
         }
 
         .swatch {
@@ -180,38 +182,40 @@ class ColorTool extends LitElement {
 
       <main class="color">
         <div class="card color__input-holder" style="background-color: ${this.color.hex}">
-          <input type="text" class="color__input" value="${this.color.value}" @change="${this._updateRgbFromHex}">
+          <input type="text" class="color__input" .value="${this.color.value}" @change="${this._updateHexToRgb}">
         </div>
         <div class="card color__block">
           <h2>RGB/HEX</h2>
           <div class="color__ranges">
             <label>Red</label>
             <input type="range" id="rgbRedRange" name="rgbRedRange" min="0" max="255" step="1" .value="${Math.round(this.color.rgb.r)}" .val="${Math.round(this.color.rgb.r)}" @change="${this._updateRgbFromRange}">
-            <input type="number" id="rgbRedNumber" name="rgbRedNumber" min="0" max="255" step="1" value="${Math.round(this.color.rgb.r)}" @change="${this._updateRgbFromNumber}">
-
+            <input type="number" id="rgbRedNumber" name="rgbRedNumber" min="0" max="255" step="1" .value="${Math.round(this.color.rgb.r)}" @change="${this._updateRgbFromNumber}">
             
             <label>Green</label>
             <input type="range" id="rgbGreenRange" name="rgbGreenRange" min="0" max="255" step="1" .value="${Math.round(this.color.rgb.g)}" @change="${this._updateRgbFromRange}">
-            <input type="number" id="rgbGreenNumber" name="rgbGreenNumber" min="0" max="255" step="1" value="${Math.round(this.color.rgb.g)}" @change="${this._updateRgbFromNumber}">
+            <input type="number" id="rgbGreenNumber" name="rgbGreenNumber" min="0" max="255" step="1" .value="${Math.round(this.color.rgb.g)}" @change="${this._updateRgbFromNumber}">
           
             <label>Blue</label>
             <input type="range" id="rgbBlueRange" name="rgbBlueRange" min="0" max="255" step="1" .value="${Math.round(this.color.rgb.b)}" @change="${this._updateRgbFromRange}">
-            <input type="number" id="rgbBlueNumber" name="rgbBlueNumber" min="0" max="255" step="1" value="${Math.round(this.color.rgb.b)}" @change="${this._updateRgbFromNumber}">
+            <input type="number" id="rgbBlueNumber" name="rgbBlueNumber" min="0" max="255" step="1" .value="${Math.round(this.color.rgb.b)}" @change="${this._updateRgbFromNumber}">
           </div>
         </div>
         <div class="card color__block">
-          <h2>Luminance</h2>
+          <h2>HSL</h2>
           <div class="color__ranges">
-            <label>Lum</label>
-            <input type="range" id="lumRange" name="lumRange" min="0" max="1" step=".0001" .value="${this.color.lum}">
-            <input type="number" id="lumNumber" name="lumNumber" min="0" max="1" step=".0001" value="${this.color.lum}">
-            <label>Y</label>
-            <input type="range" id="yRange" name="yRange" min="0" max="1" step=".0001" .value="${this.color.xyz.y}">
-            <input type="number" id="yNumber" name="yNumber" min="0" max="1" step=".0001" value="${this.color.xyz.y}">
+            <label>Hue</label>
+            <input type="range" id="hslHueRange" name="hslHueRange" min="0" max="360" step="1" .value="${this.color.hsl.h}" @change="${this._updateHslFromRange}">
+            <input type="number" id="hslHueNumber" name="hslHueNumber" min="0" max="360" step="1" .value="${Math.round(this.color.hsl.h)}" @change="${this._updateHslFromNumber}">
+            
+            <label>Saturation</label>
+            <input type="range" id="hslSatRange" name="hslSatRange" min="0" max="100" step=".1" .value="${this.color.hsl.s}" @change="${this._updateHslFromRange}">
+            <input type="number" id="hslSatNumber" name="hslSatNumber" min="0" max="100" step=".1" .value="${Math.round(this.color.hsl.s)}" @change="${this._updateHslFromNumber}">
+          
+            <label>Lightness</label>
+            <input type="range" id="hslLitRange" name="hslLitRange" min="0" max="100" step=".1" .value="${this.color.hsl.l}" @change="${this._updateHslFromRange}">
+            <input type="number" id="hslLitNumber" name="hslLitNumber" min="0" max="100" step=".1" .value="${Math.round(this.color.hsl.l)}" @change="${this._updateHslFromNumber}">
           </div>
         </div>
-        <div class="card color__block">
-          <h2>RGB/HEX</h2>
         </div>
       </main>
 
@@ -219,10 +223,11 @@ class ColorTool extends LitElement {
   }
 
   _addSwatch() {
-    const contrast = this._contrastFromLum(1, this.color.lum);
-    const newSwatch = { x: 0.9505,
-      y: 1.0000,
-      z: 1.0888,
+    const contrast = this._lumToContrast(1, this.color.lum);
+    const newSwatch = { 
+      r: 255,
+      g: 255,
+      b: 255,
       hex: '#ffffff',
       lum: 1,
       contrast,
@@ -239,39 +244,37 @@ class ColorTool extends LitElement {
   }
 
   _setSwatch(i){
-    console.log(i);
-    console.log(this.swatches[i].x, this.swatches[i].y, this.swatches[i].z);
     this.selectedSwatch = i;
-    // const xyz = [this.swatches[i].x, this.swatches[i].y, this.swatches[i].z]
-    // this._setColorXyz([...xyz]);    
-    this._setColorXyz(this.swatches[i].x, this.swatches[i].y, this.swatches[i].z);    
+    this._setColorRgb(this.swatches[i].r, this.swatches[i].g, this.swatches[i].b);    
   }
 
-  _setColorXyz(x, y, z) {
-    this.color.xyz = {x, y, z};
+  _setColorRgb(r, g, b) {
+    this.color.rgb = {r, g, b};
     this._updateColor();
     this._updateSwatch();
     this._updateSwatches();
   }
 
-  _setColorRgb(r, g, b) {
-    const xyz = this._xyzFromRgb(r, g, b);   
-    this._setColorXyz(xyz.x, xyz.y, xyz.z);
+  _setColorHsl(h, s, l) {
+    const rgb = this._hslToRgb([h, s, l]);
+    this._setColorRgb(rgb[0], rgb[1], rgb[2]);
   }
 
   _updateColor() {
-    const {x} = this.color.xyz;
-    const {y} = this.color.xyz;
-    const {z} = this.color.xyz;
-    const xyz = {x, y, z};
-    const rgb = this._rgbFromXyz(x, y, z);
-    const hex = this._hexFromRgb(rgb.r, rgb.g, rgb.b);
-    const lum = this._lumFromRgb(rgb.r, rgb.g, rgb.b);
+    const {r} = this.color.rgb;
+    const {g} = this.color.rgb;
+    const {b} = this.color.rgb;
+    const rgb = {r, g, b};
+    const hex = this._rgbToHex(rgb.r, rgb.g, rgb.b);
+    const hsl = this._rgbToHsl(rgb.r, rgb.g, rgb.b);
+    const lum = this._rgbToLum(rgb.r, rgb.g, rgb.b);
+    const lumRatio = this._lumToContrast(lum, 0);
     this.color = {
-      xyz,
       rgb,
       hex,
+      hsl,
       lum,
+      lumRatio,
       value: hex,
     }; 
     // this.requestUpdate();
@@ -279,9 +282,9 @@ class ColorTool extends LitElement {
 
   _updateSwatch(){
     this.swatches[this.selectedSwatch] = { 
-      x: this.color.xyz.x,
-      y: this.color.xyz.y,
-      z: this.color.xyz.z,
+      r: this.color.rgb.r,
+      g: this.color.rgb.g,
+      b: this.color.rgb.b,
       hex: this.color.hex,
       lum: this.color.lum,
       contrast: '1.0',
@@ -290,60 +293,143 @@ class ColorTool extends LitElement {
 
   _updateSwatches(){
     this.swatches.forEach( swatch => (
-      swatch.contrast = this._contrastFromLum(swatch.lum, this.color.lum)
+      swatch.contrast = this._lumToContrast(swatch.lum, this.color.lum)
     )); 
   }
 
-  _rgbFromXyz(x, y, z) { // https://stackoverflow.com/questions/43494018/converting-xyz-color-to-rgb
-    const r = this._toSrgb(3.2404542*x - 1.5371385*y - 0.4985314*z) * 255;
-    const g = this._toSrgb(-0.9692660*x + 1.8760108*y + 0.0415560*z) * 255;
-    const b = this._toSrgb(0.0556434*x - 0.2040259*y + 1.0572252*z) * 255;
-    console.log(x, y ,z, r, g, b);
-    return({r, g, b});
+  _hslToRgb(hsl){
+    const h = hsl[0] / 360;
+    const s = hsl[1] / 100;
+    const l = hsl[2] / 100;
+    
+    let t2;
+    let t3;
+    let val;
+  
+    if (s === 0) {
+      val = l * 255;
+      return [val, val, val];
+    }
+  
+    if (l < 0.5) {
+      t2 = l * (1 + s);
+    } else {
+      t2 = l + s - l * s;
+    }
+  
+    const t1 = 2 * l - t2;
+  
+    const rgb = [0, 0, 0];
+    for (let i = 0; i < 3; i += 1) {
+      t3 = h + 1 / 3 * -(i - 1);
+      if (t3 < 0) {
+        t3 += 1;
+      }
+  
+      if (t3 > 1) {
+        t3 -= 1;
+      }
+  
+      if (6 * t3 < 1) {
+        val = t1 + (t2 - t1) * 6 * t3;
+      } else if (2 * t3 < 1) {
+        val = t2;
+      } else if (3 * t3 < 2) {
+        val = t1 + (t2 - t1) * (2 / 3 - t3) * 6;
+      } else {
+        val = t1;
+      }
+  
+      rgb[i] = val * 255;
+    }
+  
+    return rgb;
   }
 
-  _xyzFromRgb(sr, sg, sb) {
-    const r = this._fromSrgb(sr / 255);
-    const g = this._fromSrgb(sg / 255);
-    const b = this._fromSrgb(sb / 255);
+  _rgbToHsl(r, g, b) {
+    r /= 255;
+    g /= 255;
+    b /= 255;
 
-    const x = 0.4124564*r + 0.3575761*g  + 0.1804375*b;
-    const y = 0.2126729*r + 0.7151522*g  + 0.0721750*b;
-    const z = 0.0193339*r + 0.1191920*g  + 0.9503041*b;
-    return({x, y, z});
+    const valMin = Math.min(r, g, b);    // Min. value of RGB
+    const valMax = Math.max(r, g, b);    // Max. value of RGB
+    const valDelta = valMax - valMin; // Delta RGB value
+
+    let h;
+    let s;
+    const l = ( valMax + valMin ) / 2 * 100;     
+
+    if ( valDelta === 0 ) {
+      h = 0;                   // HSL results from 0 to 1
+      s = 0;
+    }
+    else                        // Chromatic data...
+    {
+      if ( l < 50 ) {
+        s = valDelta / ( valMax + valMin );
+      }
+      else {
+        s = valDelta / ( 2 - valMax - valMin );
+      }
+
+      const rDelta = ((( valMax - r ) / 6 ) + ( valDelta / 2 )) / valDelta;
+      const gDelta = ((( valMax - g ) / 6 ) + ( valDelta / 2 )) / valDelta;
+      const bDelta = ((( valMax - b ) / 6 ) + ( valDelta / 2 )) / valDelta;
+
+      if ( r === valMax ) {
+        h = bDelta - gDelta;
+      }
+      else if ( g === valMax ) {
+        h = ( 1 / 3 ) + rDelta - bDelta;
+      } 
+      else if ( b === valMax ) {
+        h = ( 2 / 3 ) + gDelta - rDelta;
+      }
+
+      if ( h < 0 ) h += 1
+      if ( h > 1 ) h -= 1
+    }
+    h *= 360;
+    s *= 100;    
+    return {h, s, l};
   }
 
-  _hexFromRgb(r, g, b) { // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+  _rgbToHex(r, g, b) { // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
     const rgb = Math.round(b) | (Math.round(g) << 8) | (Math.round(r) << 16);
     const hex = `#${  (0x1000000 + rgb).toString(16).slice(1)}`;     
     return hex;
   }
 
-  _rgbFromHex(hex) {
+  _hexToRgb(hex) {
 
     return({r, g, b});
   }
 
-  _lumFromRgb(r, g, b) {
-    const rSrgb = r / 255;
-    const gSrgb = g / 255;
-    const bSrgb = b / 255;
-
-    const rL = rSrgb <= 0.03928 ? rSrgb/12.92 : ((rSrgb + 0.055)/1.055) ** 2.4;
-    const gL = gSrgb <= 0.03928 ? gSrgb/12.92 : ((gSrgb + 0.055)/1.055) ** 2.4;
-    const bL = bSrgb <= 0.03928 ? bSrgb/12.92 : ((bSrgb + 0.055)/1.055) ** 2.4;
+  _rgbToLum(r, g, b) {
+    const rL = this._toSrgb(r / 255);
+    const gL = this._toSrgb(g / 255);
+    const bL = this._toSrgb(b / 255);
 
     const lum = (0.2126 * rL + 0.7152 * gL + 0.0722 * bL);    
     return lum;
   }
 
-  _contrastFromLum(lum1, lum2) {
+  _lumToContrast(lum1, lum2) {
     const contrast = (lum1 > lum2 ? (lum1 + 0.05) / (lum2 + 0.05) : (lum2 + 0.05) / (lum1 + 0.05)).toFixed(1);
     return contrast;
   }
 
-  _updateRgbFromHex(hex){
-    this._rgbFromHex(hex);
+  _hueToRgb(v1, v2, h ) {
+     if ( h < 0 ) h += 1;
+     if ( h > 1 ) h -= 1;
+     if ( ( 6 * h ) < 1 ) return ( v1 + ( v2 - v1 ) * 6 * h )
+     if ( ( 2 * h ) < 1 ) return ( v2 )
+     if ( ( 3 * h ) < 2 ) return ( v1 + ( v2 - v1 ) * ( ( 2 / 3 ) - h ) * 6 )
+     return ( v1 );
+  }
+
+  _updateHexToRgb(hex){
+    this._hexToRgb(hex);
     this._setColorRgb(r, g, b);
   }
 
@@ -359,6 +445,30 @@ class ColorTool extends LitElement {
     const g = this.shadowRoot.getElementById('rgbGreenNumber').value;
     const b = this.shadowRoot.getElementById('rgbBlueNumber').value;    
     this._setColorRgb(r, g, b);
+  }
+
+  _updateHslFromRange(){
+    const h = this.shadowRoot.getElementById('hslHueRange').value;
+    const s = this.shadowRoot.getElementById('hslSatRange').value;
+    const l = this.shadowRoot.getElementById('hslLitRange').value;
+
+    this.shadowRoot.getElementById('hslHueNumber').value = h;
+    this.shadowRoot.getElementById('hslSatNumber').value = s;
+    this.shadowRoot.getElementById('hslLitNumber').value = l;    
+
+    this._setColorHsl(h, s, l);
+  }
+
+  _updateHslFromNumber(){    
+    const h = this.shadowRoot.getElementById('hslHueNumber').value;
+    const s = this.shadowRoot.getElementById('hslSatNumber').value;
+    const l = this.shadowRoot.getElementById('hslLitNumber').value;    
+
+    this.shadowRoot.getElementById('hslHueRange').value = h;
+    this.shadowRoot.getElementById('hslSatRange').value = s;
+    this.shadowRoot.getElementById('hslLitRange').value = l;
+
+    this._setColorHsl(h, s, l);
   }
 
   _fromSrgb(c){
