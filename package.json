@@ -1,7 +1,7 @@
 {
-  "name": "color-tool",
+  "name": "pa11yt",
   "version": "0.0.1",
-  "description": "Color tool",
+  "description": "pa11yt",
   "main": "index.html",
   "scripts": {
     "test": "karma start",
@@ -24,14 +24,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/erikkroes/color-tool.git"
+    "url": "git+https://github.com/erikkroes/pa11yt.git"
   },
   "author": "Erik Kroes",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/erikkroes/color-tool/issues"
+    "url": "https://github.com/erikkroes/pa11yt/issues"
   },
-  "homepage": "https://github.com/erikkroes/color-tool#readme",
+  "homepage": "https://github.com/erikkroes/pa11yt#readme",
   "devDependencies": {
     "@open-wc/building-webpack": "^0.1.3",
     "webpack-cli": "^3.2.3",
