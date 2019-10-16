@@ -1,4 +1,4 @@
-# color-tool
+# pa11yt
 
 ⚖️ Measure contrast with more than 1 color 
 
@@ -6,6 +6,6 @@
 
 📏 Get automatic conversion between color spaces
 
-➡️ Demo at https://color-tool.erikkroes.nl
+➡️ Demo at https://pa11yt.erikkroes.nl
 
 🚧 Work in Progress 🚧

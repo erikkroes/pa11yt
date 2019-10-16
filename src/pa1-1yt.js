@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { LitElement, html, css } from 'lit-element';
 
-class ColorTool extends LitElement {
+class Pa11yt extends LitElement {
   static get properties() {
     return {
       title: { type: String },
@@ -13,7 +13,7 @@ class ColorTool extends LitElement {
 
   constructor() {
     super();
-    this.title = 'color-tool';
+    this.title = 'pa11yt';
     this.selectedSwatch = 2;
     this.swatches = [{ 
       r: 255,
@@ -695,4 +695,4 @@ class ColorTool extends LitElement {
   }
 }
 
-customElements.define('color-tool', ColorTool);
+customElements.define('pa1-1yt', Pa11yt);
